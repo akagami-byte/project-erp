@@ -42,4 +42,10 @@ class Product extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
+
+    // Relasi ke SimplePurchaseItem
+    public function simplePurchaseItems(): HasMany
+    {
+        return $this->hasMany(SimplePurchaseItem::class);
+    }
 }

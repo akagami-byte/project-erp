@@ -35,6 +35,8 @@
             background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             color: white;
             position: fixed;
+            top: 0;
+            left: 0;
             height: 100vh;
             overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
@@ -480,11 +482,14 @@
                 
                 <div class="menu-section">
                     <div class="menu-section-title">Purchasing</div>
-                    <a href="{{ route('purchase.index') }}" class="menu-item {{ request()->routeIs('purchase.index', 'purchase.create', 'purchase.show', 'purchase.destroy') ? 'active' : '' }}">
+                    <a href="{{ route('purchase.index') }}" class="menu-item {{ request()->routeIs('purchase.*') ? 'active' : '' }}">
                         <i></i> Purchase
                     </a>
                     <a href="{{ route('purchase.invoice.index') }}" class="menu-item {{ request()->routeIs('purchase.invoice.*') ? 'active' : '' }}">
                         <i></i> Invoice
+                    </a>
+                    <a href="{{ route('simple-purchases.index') }}" class="menu-item {{ request()->routeIs('simple-purchases.*') ? 'active' : '' }}">
+                        <i></i> Simple Purchase
                     </a>
                 </div>
                 

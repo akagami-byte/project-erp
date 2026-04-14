@@ -1,21 +1,25 @@
-# Implement Purchase Accounting Logic by Payment Method
+# Simple Purchase Flow Update TODO
 
-**Status: Complete ✅**
+## 1. Controller Changes [ ]
+- Update store(): payment_status = 'UNPAID'
+- Add pay() method
+- Update updateReceipt(): editable qty_received, diff stock, status logic
 
-### Completed:
-- [x] 1. Updated purchase/create.blade.php - Added cash dropdown + JS toggle
-- [x] 2. Updated PurchasingController::store - Added validation + journal logic (Debit 110501 Inventory, Credit cash/210101 AP)
-- [x] 3. Seeded ChartOfAccountSeeder 
+## 2. Routes [ ]
+- POST simple-purchases/{id}/pay
+- POST simple-purchases/{id}/receipt (change from PATCH)
 
-### Test Instructions:
-1. Login admin@gmail.com / password123
-2. Go to `/purchase/create`
-3. Test Cash: Select cash → choose cash account → fill items → Save → Check /accounting for PO- journal
-4. Test Credit: Select credit → no dropdown → Save → Check journal with AP 210101
-5. Verify balanced debit=credit=$total
+## 3. Blade show.blade.php [ ]
+- Pay button if UNPAID
+- Editable qty_received inputs
+- Update Receipt button (POST)
 
-**Success Message:** "Purchase berhasil dibuat dan journal entry otomatis dibuat!"
+## 4. Validation [ ]
+- qty_received validation
+- Stock validation
 
-**Previous GR Debug: Fixed**
+## Testing [ ]
+- Create → UNPAID/NOT_RECEIVED
+- Pay → PAID
+- Update Receipt → stock diff + status update
 
-Ready for testing! 🎉

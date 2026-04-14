@@ -18,4 +18,10 @@ class Supplier extends Model
     {
         return $this->hasMany(Purchase::class);
     }
+
+    // Relasi ke SimplePurchase
+    public function simplePurchases(): HasMany
+    {
+        return $this->hasMany(SimplePurchase::class);
+    }
 }
