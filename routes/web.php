@@ -55,6 +55,8 @@ Route::prefix('sales')->name('sales.')->group(function () {
     Route::get('/create', [SalesController::class, 'create'])->name('create');
     Route::post('/', [SalesController::class, 'store'])->name('store');
     Route::get('/{sale}', [SalesController::class, 'show'])->name('show');
+    Route::post('/{sale}/midtrans/charge', [SalesController::class, 'midtransCharge'])->name('midtrans.charge');
+    Route::post('/{sale}/pay', [SalesController::class, 'pay'])->name('pay');
     Route::delete('/{sale}', [SalesController::class, 'destroy'])->name('destroy');
 });
 

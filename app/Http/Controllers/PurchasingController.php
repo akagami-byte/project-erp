@@ -271,6 +271,7 @@ class PurchasingController extends Controller
     {
         // Get purchases with no invoice
         $purchases = Purchase::with('supplier')
+            ->whereHas('goodsReceipts') // Only show purchases that have been received
             ->whereDoesntHave('invoices')
             ->get();
         return view('purchase.invoice.create', compact('purchases'));

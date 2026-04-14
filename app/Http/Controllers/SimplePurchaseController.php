@@ -107,11 +107,11 @@ class SimplePurchaseController extends Controller
      */
     public function pay(SimplePurchase $simplePurchase)
     {
-        DB::transaction(function () use ($simplePurchase) {
-            if ($simplePurchase->payment_status === 'PAID') {
-                return redirect()->back()->with('error', 'Sudah dibayar!');
-            }
+        if ($simplePurchase->payment_status === 'PAID') {
+            return redirect()->back()->with('error', 'Sudah dibayar!');
+        }
 
+        DB::transaction(function () use ($simplePurchase) {
             $simplePurchase->update([
                 'payment_status' => 'PAID'
             ]);
@@ -129,7 +129,7 @@ class SimplePurchaseController extends Controller
         $validator = Validator::make($request->all(), [
             'items' => 'required|array',
             'items.*.id' => 'required|exists:simple_purchase_items,id',
-            'items.*.qty_received' => 'required|integer|min:0',
+            'items.*.received_now' => 'required|integer|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -142,28 +142,32 @@ class SimplePurchaseController extends Controller
             foreach ($request->items as $itemData) {
                 $item = SimplePurchaseItem::findOrFail($itemData['id']);
                 
-                $oldQtyReceived = $item->qty_received;
-                $newQtyReceived = (int) $itemData['qty_received'];
+                $receivedNow = (int) $itemData['received_now'];
+                $remaining = $item->qty_order - $item->qty_received;
 
-                // Validate qty_received tidak boleh melebihi qty_order
-                if ($newQtyReceived > $item->qty_order) {
-                    throw new \Exception('Qty received tidak boleh melebihi qty order untuk ' . $item->product->name);
+                // Validate qty received now tidak boleh melebihi remaining
+                if ($receivedNow > $remaining) {
+                    throw new \Exception('Qty received tidak boleh melebihi remaining untuk ' . $item->product->name);
                 }
 
-                // Validation: no negative diff that makes stock negative
-                $diff = $newQtyReceived - $oldQtyReceived;
-                if ($item->product->stock + $diff < 0) {
+                if ($receivedNow === 0) {
+                    continue;
+                }
+
+                // Update stock with the newly received qty
+                if ($item->product->stock + $receivedNow < 0) {
                     throw new \Exception('Stock tidak boleh negatif untuk ' . $item->product->name);
                 }
 
-                // Update stock with diff
-                $item->product->stock += $diff;
+                $item->product->stock += $receivedNow;
                 $item->product->save();
 
-                // Update item
-                $item->qty_received = $newQtyReceived;
+                // Update item cumulative received qty
+                $item->qty_received += $receivedNow;
                 $item->save();
             }
+
+            $simplePurchase->refresh();
 
             // Update receipt_status
             $totalReceived = $simplePurchase->items->sum('qty_received');

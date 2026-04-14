@@ -106,7 +106,8 @@
                             <tr>
                                 <th>Product</th>
                                 <th>Qty Order</th>
-                                <th>Qty Received <small>(Edit)</small></th>
+                                <th>Qty Received</th>
+                                <th>Qty Receive Now</th>
                                 <th>Remaining</th>
                                 <th>Price</th>
                                 <th>Subtotal</th>
@@ -114,14 +115,18 @@
                         </thead>
                         <tbody>
                             @foreach($simplePurchase->items as $item)
+                                @php
+                                    $remaining = $item->qty_order - $item->qty_received;
+                                @endphp
                                 <tr>
                                     <td>{{ $item->product->name }}</td>
                                     <td>{{ $item->qty_order }}</td>
+                                    <td>{{ $item->qty_received }}</td>
                                     <td>
                                         <input type="hidden" name="items[{{ $loop->index }}][id]" value="{{ $item->id }}">
-                                        <input type="number" name="items[{{ $loop->index }}][qty_received]" value="{{ $item->qty_received }}" min="0" max="{{ $item->qty_order }}" class="form-control form-control-sm" style="width: 100px;">
+                                        <input type="number" name="items[{{ $loop->index }}][received_now]" value="0" min="0" max="{{ $remaining }}" class="form-control form-control-sm" style="width: 100px;" {{ $remaining === 0 ? 'readonly' : '' }}>
                                     </td>
-                                    <td><span class="badge bg-light text-dark">{{ $item->qty_order - $item->qty_received }}</span></td>
+                                    <td><span class="badge bg-light text-dark">{{ $remaining }}</span></td>
                                     <td>Rp {{ number_format($item->price, 0, ',', '.') }}</td>
                                     <td>Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
                                 </tr>
@@ -175,8 +180,22 @@
             // Open Midtrans Snap popup
             window.snap.pay(data.snap_token, {
                 onSuccess: function (result) {
-                    alert('✅ Pembayaran berhasil! Halaman akan diperbarui.');
-                    window.location.reload();
+                    alert('✅ Pembayaran berhasil! Status akan diperbarui.');
+                    
+                    // Create a form to manually call the pay route (since webhook doesn't work on localhost without ngrok)
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '{{ route('simple-purchases.pay', $simplePurchase) }}';
+                    form.style.display = 'none';
+
+                    const csrfToken = document.createElement('input');
+                    csrfToken.type = 'hidden';
+                    csrfToken.name = '_token';
+                    csrfToken.value = '{{ csrf_token() }}';
+
+                    form.appendChild(csrfToken);
+                    document.body.appendChild(form);
+                    form.submit();
                 },
                 onPending: function (result) {
                     alert('⏳ Pembayaran pending. Silakan selesaikan pembayaran Anda.');

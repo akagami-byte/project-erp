@@ -482,7 +482,7 @@
                 
                 <div class="menu-section">
                     <div class="menu-section-title">Purchasing</div>
-                    <a href="{{ route('purchase.index') }}" class="menu-item {{ request()->routeIs('purchase.*') ? 'active' : '' }}">
+                    <a href="{{ route('purchase.index') }}" class="menu-item {{ (request()->routeIs('purchase.*') && !request()->routeIs('purchase.goods_receipt.*') && !request()->routeIs('purchase.invoice.*')) ? 'active' : '' }}">
                         <i></i> Purchase
                     </a>
                     <a href="{{ route('purchase.invoice.index') }}" class="menu-item {{ request()->routeIs('purchase.invoice.*') ? 'active' : '' }}">

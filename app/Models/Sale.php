@@ -7,11 +7,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sale extends Model
 {
+    public const PAYMENT_STATUS = [
+        'UNPAID' => 'UNPAID',
+        'PAID' => 'PAID'
+    ];
+
     protected $fillable = [
         'branch',
         'sales_date',
         'customer_name',
-        'total'
+        'total',
+        'payment_status',
+        'midtrans_order_id',
     ];
 
     protected $casts = [

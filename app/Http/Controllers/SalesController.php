@@ -7,7 +7,10 @@ use App\Models\Sale;
 use App\Models\SaleItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Midtrans\Config as MidtransConfig;
+use Midtrans\Snap;
 
 class SalesController extends Controller
 {
@@ -109,6 +112,71 @@ class SalesController extends Controller
     {
         $sale->load('items.product');
         return view('sales.show', compact('sale'));
+    }
+
+    /**
+     * Create Midtrans Snap token for sale payment.
+     */
+    public function midtransCharge(Sale $sale)
+    {
+        if ($sale->payment_status === 'PAID') {
+            return response()->json(['error' => 'Sales order sudah dibayar.'], 400);
+        }
+
+        MidtransConfig::$serverKey    = config('midtrans.server_key');
+        MidtransConfig::$isProduction = config('midtrans.is_production');
+        MidtransConfig::$isSanitized  = config('midtrans.is_sanitized');
+        MidtransConfig::$is3ds        = config('midtrans.is_3ds');
+        MidtransConfig::$curlOptions  = [
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_HTTPHEADER     => [],
+        ];
+
+        $orderId = 'SO-' . str_pad($sale->id, 5, '0', STR_PAD_LEFT) . '-' . time();
+
+        $params = [
+            'transaction_details' => [
+                'order_id'     => $orderId,
+                'gross_amount' => (int) $sale->total,
+            ],
+            'item_details' => $sale->items->map(function ($item) {
+                return [
+                    'id'       => (string) $item->id,
+                    'price'    => (int) $item->price,
+                    'quantity' => (int) $item->qty,
+                    'name'     => $item->product->name,
+                ];
+            })->toArray(),
+        ];
+
+        try {
+            $snapToken = Snap::getSnapToken($params);
+            $sale->update(['midtrans_order_id' => $orderId]);
+
+            return response()->json([
+                'snap_token' => $snapToken,
+                'client_key' => config('midtrans.client_key'),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Midtrans charge error (Sale): ' . $e->getMessage());
+            return response()->json(['error' => 'Gagal menghubungi payment gateway: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Mark sale as paid after Midtrans success.
+     */
+    public function pay(Sale $sale)
+    {
+        if ($sale->payment_status === 'PAID') {
+            return redirect()->back()->with('error', 'Sales order sudah dibayar.');
+        }
+
+        $sale->update(['payment_status' => 'PAID']);
+
+        return redirect()->route('sales.index')
+            ->with('success', 'Pembayaran Sales order berhasil dicatat!');
     }
 
     /**
