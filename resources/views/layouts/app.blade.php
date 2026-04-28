@@ -475,19 +475,19 @@
                     <a href="{{ route('stock_opname.index') }}" class="menu-item {{ request()->routeIs('stock_opname.*') ? 'active' : '' }}">
                         <i></i> Stock Opname
                     </a>
-                    <a href="{{ route('purchase.goods_receipt.index') }}" class="menu-item {{ request()->routeIs('purchase.goods_receipt.*') ? 'active' : '' }}">
+                    <!-- <a href="{{ route('purchase.goods_receipt.index') }}" class="menu-item {{ request()->routeIs('purchase.goods_receipt.*') ? 'active' : '' }}">
                         <i></i> Goods Receipt
-                    </a>
+                    </a> -->
                 </div>
                 
                 <div class="menu-section">
                     <div class="menu-section-title">Purchasing</div>
-                    <a href="{{ route('purchase.index') }}" class="menu-item {{ (request()->routeIs('purchase.*') && !request()->routeIs('purchase.goods_receipt.*') && !request()->routeIs('purchase.invoice.*')) ? 'active' : '' }}">
+                    <!-- <a href="{{ route('purchase.index') }}" class="menu-item {{ (request()->routeIs('purchase.*') && !request()->routeIs('purchase.goods_receipt.*') && !request()->routeIs('purchase.invoice.*')) ? 'active' : '' }}">
                         <i></i> Purchase
                     </a>
                     <a href="{{ route('purchase.invoice.index') }}" class="menu-item {{ request()->routeIs('purchase.invoice.*') ? 'active' : '' }}">
                         <i></i> Invoice
-                    </a>
+                    </a> -->
                     <a href="{{ route('simple-purchases.index') }}" class="menu-item {{ request()->routeIs('simple-purchases.*') ? 'active' : '' }}">
                         <i></i> Simple Purchase
                     </a>
