@@ -82,3 +82,7 @@ Route::post('simple-purchases/{simple_purchase}/pay', [SimplePurchaseController:
 Route::post('simple-purchases/{simple_purchase}/receipt', [SimplePurchaseController::class, 'updateReceipt'])->name('simple-purchases.updateReceipt');
 Route::post('simple-purchases/{simple_purchase}/midtrans/charge', [SimplePurchaseController::class, 'midtransCharge'])->name('simple-purchases.midtrans.charge');
 Route::post('simple-purchases/midtrans/callback', [SimplePurchaseController::class, 'midtransCallback'])->name('simple-purchases.midtrans.callback');
+
+Route::post('simple-purchases/midtrans/callback', [SimplePurchaseController::class, 'midtransCallback'])
+    ->name('simple-purchases.midtrans.callback')
+    ->withoutMiddleware('csrf'); // EXCLUDE CSRF untuk route callback Midtrans
