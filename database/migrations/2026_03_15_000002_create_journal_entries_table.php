@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('transaction_type');
             $table->text('description')->nullable();
             $table->unsignedBigInteger('branch_id')->nullable(); // For future branch support
-$table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+$table->foreignId('created_by')->nullable()->constrained('user')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
         });

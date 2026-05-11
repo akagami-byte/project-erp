@@ -16,6 +16,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             ChartOfAccountSeeder::class,
+            UserSeeder::class,
+            HRNexa_UserSeeder::class,
+            HRNexa_DataSeeder::class,
         ]);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\PurchasingController;
@@ -18,9 +19,19 @@ use App\Http\Controllers\ChartOfAccountController;
 Route::get('/', function () {
     return view('welcome');
 });
+// Auth routes
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Middleware to protect dashboard and redirect to login if not authenticated
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // ...tambahkan route lain yang perlu proteksi di sini
+});
 
 // Dashboard
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// Route dashboard dipindah ke dalam group middleware auth
 
 // Resource Routes
 Route::resource('products', ProductController::class);
